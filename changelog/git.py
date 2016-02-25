@@ -6,10 +6,41 @@ from __future__ import print_function, division
 from subprocess import check_output
 
 
+def default_get(d, key, factory):
+    if key not in d:
+        d[key] = factory()
+    return d[key]
+
+
 class Git(object):
     def __init__(self):
         "docstring"
         pass
+
+    def get_changelog_data(self, config):
+        """ Finds all data matching the config in the repo.
+
+        Parameters:
+        config - Configuration to use.
+
+        Returns:
+        A dictionary matching the config.
+        """
+        data = {}
+
+        for rev in config["git"]["revs"]:
+            for tag in config["git"]["tags"]:
+                commits = self.get_commits(rev, tag["key"])
+                if commits:
+                    coms = default_get(
+                        default_get(data, rev, dict),
+                        tag["name"], list)
+
+                    for commit in commits:
+                        coms.append(commit)
+
+        return data
+
 
     def get_commits(self, rev, tag, add_boundary=True):
         """ Returns a list of commits with the specified tag.

@@ -1,8 +1,8 @@
 # Commits which are to be included in the change log are searched for
-# in the specified branch(es). Each branch will get its own change
-# log.
+# in the specified revisions (branches/tags). Each revision will get
+# its own change log.
 [git]
-branches = ["master"]
+revs = ["master"]
 #name = "A much better name for change log purposes/filename?"
 
 # Tag your commits with a specified `key`, as in this example commit
@@ -22,17 +22,17 @@ branches = ["master"]
 # under a single heading.
 # TODO: sub tags?
 [[git.tags]]
-key = "bug"
+key = "#bug"
 name = "Bug fixes"
 
 [[git.tags]]
-key = "feature"
+key = "#feature"
 name = "Enhancements"
 
 [[git.tags]]
-key = "enhancement"
+key = "#enhancement"
 name = "Enhancements"
 
 [[git.tags]]
-key = "changelog"
+key = "#changelog"
 name = "Misc"

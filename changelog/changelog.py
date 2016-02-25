@@ -22,6 +22,28 @@ def read_config(configfile):
         return toml.load(fin)
 
 
+def get_changelog(data):
+    """ Prints a formatted changelog corresponding to the given
+    data.
+    """
+    lines = []
+
+    for rev, revdata in data.items():
+        lines.append("# Change Log {}".format(rev))
+        lines.append("")
+
+        # TODO version?
+
+        for header, commits in revdata.items():
+            lines.append("## {}".format(header))
+            lines.append("")
+
+            for commit in commits:
+                lines.append("- {} ({})".format(commit[1], commit[0]))
+
+    return "\n".join(lines)
+
+
 def main():
     # First read command line options
     parser = argparse.ArgumentParser()
@@ -34,7 +56,6 @@ def main():
     # Now read specified config file or default
     configfile = args.config or DEFAULT_CONFIG
     config = read_config(configfile)
-
 
 
 if __name__ == '__main__':

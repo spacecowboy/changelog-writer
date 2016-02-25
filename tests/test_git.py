@@ -3,6 +3,12 @@
 from __future__ import print_function, division
 import pytest
 from changelog.git import Git
+from changelog.changelog import read_config, DEFAULT_CONFIG
+
+
+@pytest.fixture
+def config():
+    return read_config(DEFAULT_CONFIG)
 
 
 @pytest.fixture
@@ -33,3 +39,10 @@ class TestGit():
         commits = git.get_commits("master", "#tes")
 
         assert len(commits) == 0
+
+    def test_changelog(self, git, config):
+        config["git"]["tags"].append(dict(key="#test", name="Test commits"))
+        data = git.get_changelog_data(config)
+
+        assert len(data["master"]["Test commits"]) > 0
+        assert len(data["master"]["Test commits"][0]) == 2
