@@ -16,11 +16,12 @@ install:
   - pip install -r dev-requirements.txt
   - pip install .
 
-script: py.test --cov=changelog -vv
+script:
+  - py.test --cov=changelog -vv --cov-report term-missing
 
 after_success:
-  coveralls
+  -  coveralls
 
 # Don't want notifications
 notifications:
-  email: false
+  -  email: false
