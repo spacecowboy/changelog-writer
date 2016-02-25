@@ -1,0 +1,25 @@
+# This allows it to run on faster containers.
+sudo: false
+
+language: python
+
+matrix:
+  include:
+    - python: 2.7
+    - python: 3.4
+    - python: 3.5
+#  allow_failures:
+#    - python: "nightly"
+
+install:
+  - pip install -r dev-requirements.txt
+  - pip install .
+
+script: py.test --cov=changelog -vv
+
+after_success:
+  coveralls
+
+# Don't want notifications
+notifications:
+  email: false
