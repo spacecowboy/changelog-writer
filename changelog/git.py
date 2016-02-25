@@ -4,6 +4,7 @@ Implements functionality specific to git
 """
 from __future__ import print_function, division
 from subprocess import check_output
+from collections import OrderedDict
 
 
 def default_get(d, key, factory):
@@ -33,11 +34,11 @@ class Git(object):
                 commits = self.get_commits(rev, tag["key"])
                 if commits:
                     coms = default_get(
-                        default_get(data, rev, dict),
-                        tag["name"], list)
+                        default_get(data, rev, OrderedDict),
+                        tag["name"], OrderedDict)
 
-                    for commit in commits:
-                        coms.append(commit)
+                    for sha, title in commits:
+                        coms[sha] = title
 
         return data
 

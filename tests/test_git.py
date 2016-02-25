@@ -45,4 +45,3 @@ class TestGit():
         data = git.get_changelog_data(config)
 
         assert len(data["master"]["Test commits"]) > 0
-        assert len(data["master"]["Test commits"][0]) == 2

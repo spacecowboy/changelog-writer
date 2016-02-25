@@ -30,11 +30,11 @@ def get_changelog(data):
 
     for rev, revdata in data.items():
         lines.append("# Change Log {}".format(rev))
-        lines.append("")
 
         # TODO version?
 
         for header, commits in revdata.items():
+            lines.append("")
             lines.append("## {}".format(header))
             lines.append("")
 

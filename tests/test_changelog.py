@@ -22,7 +22,8 @@ class TestConfig():
     def test_get_changelog(self):
         from changelog.git import Git
         config = read_config(DEFAULT_CONFIG)
-        config["git"]["tags"].append(dict(key="#test", name="Test commits"))
+        config["git"]["tags"] = [dict(key="#test", name="Test commits"),
+                                 dict(key="#changelog", name="Test commits")]
 
         git = Git()
 
@@ -30,5 +31,4 @@ class TestConfig():
 
         s = get_changelog(data)
 
-        assert s is None
-        assert s is not None
+        assert len(s) > 0
