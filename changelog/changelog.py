@@ -4,7 +4,7 @@ from __future__ import print_function, division
 import argparse
 from pkg_resources import resource_filename
 import pytoml as toml
-
+from .git import Git
 
 DEFAULT_CONFIG = resource_filename("changelog", "../config.toml")
 
@@ -38,8 +38,8 @@ def get_changelog(data):
             lines.append("## {}".format(header))
             lines.append("")
 
-            for commit in commits:
-                lines.append("- {} ({})".format(commit[1], commit[0]))
+            for sha, title in commits.items():
+                lines.append("- {} ({})".format(title, sha))
 
     return "\n".join(lines)
 
@@ -56,6 +56,11 @@ def main():
     # Now read specified config file or default
     configfile = args.config or DEFAULT_CONFIG
     config = read_config(configfile)
+
+    if "git" in config:
+        git = Git()
+        data = git.get_changelog_data(config)
+        print(get_changelog(data))
 
 
 if __name__ == '__main__':

@@ -33,6 +33,6 @@ name = "Enhancements"
 key = "#enhancement"
 name = "Enhancements"
 
-[[git.tags]]
-key = "#changelog"
-name = "Misc"
+#[[git.tags]]
+#key = "#changelog"
+#name = "Misc"
