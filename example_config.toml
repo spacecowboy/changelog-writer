@@ -1,0 +1,38 @@
+# Commits which are to be included in the change log are searched for
+# in the specified branch(es). Each branch will get its own change
+# log.
+[[branches]]
+branch = ["master"]
+#name = "A much better name for change log purposes/filename?"
+
+# Tag your commits with a specified `key`, as in this example commit
+#
+#     Fixes #99
+#     This fixes an annoying #bug.
+#
+# This would identify the commit as something which should be included
+# under the name specified for the `bug` tag. If no name is specified,
+# it will default to the key. Avoid numbers as this will likely
+# conflict with GitHub's issue numbers.
+#
+# If a commit is tagged with multiple tags, it will be placed in
+# whatever is defined first in this file, not both.
+#
+# If several tags define the same name, the two tags will be merged
+# under a single heading.
+# TODO: sub tags?
+[[tags]]
+key = "bug"
+name = "Bug fixes"
+
+[[tags]]
+key = "feature"
+name = "Enhancements"
+
+[[tags]]
+key = "enhancement"
+name = "Enhancements"
+
+[[tags]]
+key = "changelog"
+name = "Misc"
