@@ -74,6 +74,7 @@ class Git(object):
             if len(line) == 0:
                 continue
 
-            commits.append(line.split(maxsplit=1))
+            # kwarg 'maxsplit' only available in python3
+            commits.append(line.split(" ", 1))
 
         return commits
