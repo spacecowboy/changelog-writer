@@ -7,6 +7,7 @@ from pkg_resources import resource_filename
 import pytoml as toml
 from .git import Git
 from .util import default_get
+from . import github
 
 
 DEFAULT_CONFIG = resource_filename("changelog", "../config.toml")
@@ -62,20 +63,15 @@ def main():
     configfile = args.config or DEFAULT_CONFIG
     config = read_config(configfile)
 
-    # Set github token, prio is arg, config, envvar
-    if args.github_token:
-        default_get(config, "github", dict)["token"] = args.github_token
-    elif ("token" not in default_get(config, "github", dict) and
-          "GITHUB_TOKEN" in os.environ):
-        config["github"]["token"] = os.environ["GITHUB_TOKEN"]
+    if "github" in config:
+        history = github.get_history(args, config)
 
-    print("token", config["github"]["token"])
-    return
 
-    if "git" in config:
-        git = Git()
-        data = git.get_changelog_data(config)
-        print(get_changelog(data))
+
+    #if "git" in config:
+    #    git = Git()
+    #    data = git.get_changelog_data(config)
+    #    print(get_changelog(data))
 
 
 if __name__ == '__main__':
