@@ -9,6 +9,47 @@ from .util import default_get
 BASE = "https://api.github.com/repos/{}/{}/{}"
 
 
+def paginated(url, **params):
+    if "per_page" not in params:
+        params["per_page"] = 100
+
+    def inner_rest(func):
+        def inner(config):
+            r = requests.get(BASE.format(config["github"]["user"],
+                                         config["github"]["repo"],
+                                         url),
+                             params=params,
+                             auth=("token", config["github"]["token"]))
+
+            if "next" in r.links:
+                nextpage = r.links["next"]["url"]
+            else:
+                nextpage = None
+
+            result = {}
+            done = False
+
+            while not done:
+                for i in r.json():
+                    item = func(i)
+                    result[item.number] = item
+
+                if nextpage is not None:
+                    r = requests.get(nextpage, auth=("token", config["github"]["token"]))
+
+                    if "next" in r.links:
+                        nextpage = r.links["next"]["url"]
+                    else:
+                        nextpage = None
+                else:
+                    done = True
+
+            return result
+
+        return inner
+    return inner_rest
+
+
 def get_history(args, config):
     """ Get history from GitHub.
     """
@@ -39,86 +80,14 @@ def get_history(args, config):
         print(pr)
 
 
-def list_pull_requests(config):
-    params = {}
-    # TODO branch
-    # Want only merged PRs, and they are of course closed
-    params["state"] = "closed"
-    # List as many as we can
-    params["per_page"] = 100
-
-    r = requests.get(BASE.format(config["github"]["user"],
-                                 config["github"]["repo"],
-                                 "pulls"),
-                     params=params,
-                     auth=("token", config["github"]["token"]))
-
-    if "next" in r.links:
-        nextpage = r.links["next"]["url"]
-    else:
-        nextpage = None
-
-    result = {}
-    done = False
-
-    while not done:
-        for p in r.json():
-            pr = PullRequest(p)
-            result[pr.number] = pr
-
-        if nextpage is not None:
-            r = requests.get(nextpage, auth=("token", config["github"]["token"]))
-
-            if "next" in r.links:
-                nextpage = r.links["next"]["url"]
-            else:
-                nextpage = None
-        else:
-            done = True
-
-    return result
+@paginated("pulls", state="closed")
+def list_pull_requests(pr):
+    return PullRequest(pr)
 
 
-def list_issues(config):
-    params = {}
-    # TODO branch
-    # Want only closed issues
-    params["state"] = "closed"
-    # List as many as we can
-    params["per_page"] = 100
-    # labels 	string 	A list of comma separated label names. Example: bug,ui,@high
-
-    r = requests.get(BASE.format(config["github"]["user"],
-                                config["github"]["repo"],
-                                "issues"),
-                     params=params,
-                     auth=("token", config["github"]["token"]))
-
-    if "next" in r.links:
-        nextpage = r.links["next"]["url"]
-    else:
-        nextpage = None
-
-    result = {}
-    done = False
-
-    while not done:
-        issues = r.json()
-        for i in r.json():
-            issue = Issue(i)
-            result[issue.number] = issue
-
-        if nextpage is not None:
-            r = requests.get(nextpage, auth=("token", config["github"]["token"]))
-
-            if "next" in r.links:
-                nextpage = r.links["next"]["url"]
-            else:
-                nextpage = None
-        else:
-            done = True
-
-    return result
+@paginated("issues", state="closed")
+def list_issues(i):
+    return Issue(i)
 
 
 class Issue(object):
