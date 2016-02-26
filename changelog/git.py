@@ -42,7 +42,6 @@ class Git(object):
 
         return data
 
-
     def get_commits(self, rev, tag, add_boundary=True):
         """ Returns a list of commits with the specified tag.
 
