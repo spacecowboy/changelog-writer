@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function, division
+import sys, os
 import argparse
 from pkg_resources import resource_filename
 import pytoml as toml
 from .git import Git
+from .util import default_get
+
 
 DEFAULT_CONFIG = resource_filename("changelog", "../config.toml")
 
@@ -50,12 +53,24 @@ def main():
 
     parser.add_argument("-c", "--config",
                         help="specify config file")
+    parser.add_argument("--github_token",
+                        help="GitHub token")
 
     args = parser.parse_args()
 
     # Now read specified config file or default
     configfile = args.config or DEFAULT_CONFIG
     config = read_config(configfile)
+
+    # Set github token, prio is arg, config, envvar
+    if args.github_token:
+        default_get(config, "github", dict)["token"] = args.github_token
+    elif ("token" not in default_get(config, "github", dict) and
+          "GITHUB_TOKEN" in os.environ):
+        config["github"]["token"] = os.environ["GITHUB_TOKEN"]
+
+    print("token", config["github"]["token"])
+    return
 
     if "git" in config:
         git = Git()

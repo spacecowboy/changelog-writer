@@ -5,12 +5,7 @@ Implements functionality specific to git
 from __future__ import print_function, division
 from subprocess import check_output
 from collections import OrderedDict
-
-
-def default_get(d, key, factory):
-    if key not in d:
-        d[key] = factory()
-    return d[key]
+from .util import default_get
 
 
 class Git(object):
