@@ -3,7 +3,7 @@
 from __future__ import print_function, division
 from collections import OrderedDict
 import pytest
-from changelog.github import Change, format_history
+from changelog.github import Change, format_history, get_structure
 from changelog.util import AttrDict
 
 
@@ -29,8 +29,80 @@ class TestChange():
 
 
 class TestHistory():
+    def test_get_structure_flat(self):
+        labels = od("Bug fixes", {}, "Enhancements", {})
+
+        s = get_structure(labels)
+
+        assert len(s) == 2
+        assert s["Bug fixes"] == []
+        assert s["Enhancements"] == []
+
+    def test_get_structure_nested(self):
+        labels = od("Docs", ["Fixed typos", "Enhancements"],
+                    "Code", ["Bug fixes", "Enhancements"])
+
+        s = get_structure(labels)
+
+        assert len(s) == 2
+        assert len(s["Docs"]) == 2
+        assert s["Docs"]["Fixed typos"] == []
+        assert s["Docs"]["Enhancements"] == []
+
+        assert len(s["Code"]) == 2
+        assert s["Code"]["Bug fixes"] == []
+        assert s["Code"]["Enhancements"] == []
+
     def test_basic(self):
-        pass
+        config = dict(
+            changelog=od("Bug fixes", {}, "Enhancements", {}),
+            github=dict(
+                labels=[
+                    dict(key="docs", name="Docs"),
+                    dict(key="code", name="Code"),
+                    dict(key="typo", name="Fixed typos"),
+                    dict(key="bug", name="Bug fixes"),
+                    dict(key="enhancement", name="Enhancements"),
+                    dict(key="feature", name="Enhancements")]))
+
+        prs = od("1", AttrDict(dict(number=1, merged="3000-01-01",
+                                    title="Fixed number one", body="",
+                                    labels=["code", "bug"])),
+                 "2", AttrDict(dict(number=2, merged="3000-01-02",
+                                    title="..ber two",
+                                    body="cl:Corrected number two",
+                                    labels=["code", "bug"])),
+                 "3", AttrDict(dict(number=3, merged="3000-01-02",
+                                    title="blabla",
+                                    body="changelog:Feature three",
+                                    labels=["code", "enhancement"])),
+                 "4", AttrDict(dict(number=4, merged="3000-01-05",
+                                    title="Added manual", body="Bla bla bla",
+                                    labels=["docs", "feature"])),
+                 "5", AttrDict(dict(number=5, merged="3000-01-06",
+                                    title="Corrected spelling", body="...",
+                                    labels=["docs", "typo"])),
+                 "6", AttrDict(dict(number=6, merged="3000-01-08",
+                                    title="Added language support", body="",
+                                    labels=["code", "feature"])))
+
+        h = format_history(config, prs)
+
+        # Verify structure (should be an ordered dict)
+        assert list(h.keys()) == ["Bug fixes", "Enhancements"]
+
+        s = h["Bug fixes"]
+
+        assert len(s) == 2
+        assert s[0].change_text == "Fixed number one (#1)"
+        assert s[1].change_text == "Corrected number two (#2)"
+
+        s = h["Enhancements"]
+
+        assert len(s) == 3
+        assert s[0].change_text == "Feature three (#3)"
+        assert s[1].change_text == "Added manual (#4)"
+        assert s[2].change_text == "Added language support (#6)"
 
     def test_nested(self):
         config = dict(
@@ -68,14 +140,13 @@ class TestHistory():
 
         h = format_history(config, prs)
 
-        print(h)
-
         # Verify structure (should be an ordered dict)
         assert list(h.keys()) == ["Docs", "Code"]
 
         # Docs
         d = h["Docs"]
 
+        print(d)
         assert list(d.keys()) == ["Fixed typos", "Enhancements"]
 
         s = d["Fixed typos"]

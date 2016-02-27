@@ -69,9 +69,6 @@ def get_history(args, config):
     # Place it in the config
     config["github"]["token"] = token
 
-    # Get the interesting labels
-    labeldict = get_label_dict(config)
-
     # Load all issues and pull requests
     issues = list_issues(config)
     prs = list_pull_requests(config)
@@ -79,9 +76,9 @@ def get_history(args, config):
     # Merge PR with information in Issue (like labels)
     for issue in issues.values():
         if issue.pr:
-            prs[issue.number].load_issue(issue)
+            issue.load_pr(prs[issue.number])
 
-    return format_history(config, prs)
+    return format_history(config, issues)
 
 
 @paginated("pulls", state="closed")
@@ -94,7 +91,7 @@ def list_issues(i):
     return Issue(i)
 
 
-def format_history(config, prs):
+def format_history(config, issues):
     """
     Returns:
     OrderedDict - a history in the format specified by the config.
@@ -102,13 +99,16 @@ def format_history(config, prs):
     # Match structure in config
     history = get_structure(config["changelog"])
 
-    for pr in prs.values():
+    for issue in issues.values():
         # Make it a change
-        change = Change(pr.number,
-                        get_change_text(pr.body, pr.title),
-                        get_changelog_labels(config, pr.labels))
+        change = Change(issue.number,
+                        get_change_text(issue.body, issue.title),
+                        get_changelog_labels(config, issue.labels))
         # Find its place in the history
         put_change_in_history(change, history)
+
+    # Remove empty sections
+    prune(history)
 
     return history
 
@@ -135,15 +135,30 @@ def put_change_in_history(change, history):
 def get_structure(labels):
     res = OrderedDict()
     for label in labels:
-        print(labels, label)
-        if isinstance(labels, list):
-            # Each leaf label holds a list of changes
-            res[label] = []
-        else:
+        # Nested only if inner dicts have content
+        if (isinstance(labels, dict) and
+            (isinstance(labels[label], dict) or
+             isinstance(labels[label], list)) and
+                0 < len(labels[label])):
             # Nested
             res[label] = get_structure(labels[label])
+        else:
+            # Each leaf label holds a list of changes
+            res[label] = []
 
     return res
+
+
+def prune(history):
+    # Removes sections which do not contain any changes
+    # Depth-first-search
+    org = OrderedDict(history)
+    for k, v in org.items():
+        if isinstance(v, dict):
+            prune(v)
+
+        if len(v) == 0:
+            del history[k]
 
 
 class Issue(object):
@@ -153,6 +168,10 @@ class Issue(object):
         self.title = json["title"]
         self.body = json["body"]
         self.pr = "pull_request" in json
+        self.merged = None
+
+    def load_pr(self, pr):
+        self.merged = pr.merged
 
     def __repr__(self):
         return "{}#{}: {} {}".format("pr" if self.pr else "issue",
@@ -166,9 +185,6 @@ class PullRequest(object):
         self.title = json["title"]
         self.body = json["body"]
         self.labels = None
-
-    def load_issue(self, issue):
-        self.labels = issue.labels
 
     def __repr__(self):
         return "{}#{}: {} {}".format("pr", self.number,

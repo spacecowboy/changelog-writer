@@ -25,10 +25,16 @@ def read_config(configfile):
         return toml.load(fin)
 
 
-def get_changelog(data):
+def print_changelog(config, history):
     """ Prints a formatted changelog corresponding to the given
-    data.
+    history.
     """
+
+    for k, v in history.items():
+        print_section(k, v)
+
+    return
+
     lines = []
 
     for rev, revdata in data.items():
@@ -45,6 +51,18 @@ def get_changelog(data):
                 lines.append("- {} ({})".format(title, sha))
 
     return "\n".join(lines)
+
+
+def print_section(header, items, level=1):
+    print("\n" + "#" * level + " {}\n".format(header))
+
+    if isinstance(items, list):
+        for change in items:
+            print("- {}".format(change.change_text))
+    else:
+        # Sub sections
+        for subheader, subitems in items.items():
+            print_section(subheader, subitems, level=level+1)
 
 
 def main():
@@ -64,6 +82,7 @@ def main():
 
     if "github" in config:
         history = github.get_history(args, config)
+        print_changelog(config, history)
 
 
 if __name__ == '__main__':
