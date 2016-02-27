@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function, division
-import sys, os
 import argparse
 from pkg_resources import resource_filename
 import pytoml as toml
@@ -65,13 +64,6 @@ def main():
 
     if "github" in config:
         history = github.get_history(args, config)
-
-
-
-    #if "git" in config:
-    #    git = Git()
-    #    data = git.get_changelog_data(config)
-    #    print(get_changelog(data))
 
 
 if __name__ == '__main__':

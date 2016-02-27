@@ -35,7 +35,9 @@ def paginated(url, **params):
                     result[item.number] = item
 
                 if nextpage is not None:
-                    r = requests.get(nextpage, auth=("token", config["github"]["token"]))
+                    r = requests.get(nextpage,
+                                     auth=("token",
+                                           config["github"]["token"]))
 
                     if "next" in r.links:
                         nextpage = r.links["next"]["url"]
@@ -65,7 +67,6 @@ def get_history(args, config):
 
     # Place it in the config
     config["github"]["token"] = token
-
 
     # Load all issues and pull requests
     issues = list_issues(config)
@@ -115,19 +116,5 @@ class PullRequest(object):
         self.labels = issue.labels
 
     def __repr__(self):
-        return "{}#{}: {} {}".format("pr", self.number, self.title, self.labels)
-
-
-#    @property
-#    def labels(self):
-#        if self._labels is None:
-#            r = requests.get(BASE.format(self.config["github"]["user"],
-#                                         self.config["github"]["repo"],
-#                                         "issues/{}/labels".format(self.number)),
-#                             auth=("token", self.config["github"]["token"]))
-#            if r.status_code != 200:
-#                raise ValueError("Failed to fetch labels for PR")#
-
-#            self._labels = [l["name"] for l in r.json()]
-
-#        return self._labels
+        return "{}#{}: {} {}".format("pr", self.number,
+                                     self.title, self.labels)
