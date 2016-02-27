@@ -12,10 +12,13 @@ BASE = "https://api.github.com/repos/{}/{}/{}"
 
 def paginated(url, **params):
     if "per_page" not in params:
-        params["per_page"] = 100
+        params["per_page"] = 30
 
     def inner_rest(func):
         def inner(config):
+            print(url)
+
+            print("Downloading 0", end="\r")
             r = requests.get(BASE.format(config["github"]["user"],
                                          config["github"]["repo"],
                                          url),
@@ -30,8 +33,14 @@ def paginated(url, **params):
             result = {}
             done = False
 
+            count = 0
+
             while not done:
-                for i in r.json():
+                json = r.json()
+                count += len(json)
+                print("Downloading {}".format(count), end="\r")
+
+                for i in json:
                     item = func(i)
                     result[item.number] = item
 
@@ -46,6 +55,9 @@ def paginated(url, **params):
                         nextpage = None
                 else:
                     done = True
+
+            # Print once to clear
+            print("Downloading {}".format(count))
 
             return result
 
@@ -74,11 +86,33 @@ def get_history(args, config):
     prs = list_pull_requests(config)
 
     # Merge PR with information in Issue (like labels)
-    for issue in issues.values():
+    print("events")
+    print("Downloading 0/{}".format(len(issues)),
+          end='\r')
+    for i, issue in enumerate(issues.values()):
         if issue.pr:
             issue.load_pr(prs[issue.number])
+        else:
+            print("Downloading {}/{}".format(i, len(issues)),
+                  end="\r")
+
+            event = get_event(config, issue.number)
+            issue.load_event(event)
+
+    print("Downloading {0}/{0}".format(len(issues)))
 
     return format_history(config, issues)
+
+
+def get_event(config, issue_number):
+    r = requests.get(BASE.format(config["github"]["user"],
+                                 config["github"]["repo"],
+                                 "issues/{}/events".format(issue_number)),
+                     auth=("token", config["github"]["token"]))
+
+    e = r.json()[0]
+
+    return Event(e)
 
 
 @paginated("pulls", state="closed")
@@ -100,6 +134,8 @@ def format_history(config, issues):
     history = get_structure(config["changelog"])
 
     for issue in issues.values():
+        if not issue.fixed:
+            continue
         # Make it a change
         change = Change(issue.number,
                         get_change_text(issue.body, issue.title),
@@ -169,6 +205,15 @@ class Issue(object):
         self.body = json["body"]
         self.pr = "pull_request" in json
         self.merged = None
+        self.commit_id = None
+
+    @property
+    def fixed(self):
+        return (self.merged is not None or
+                self.commit_id is not None)
+
+    def load_event(self, e):
+        self.commit_id = e.commit_id
 
     def load_pr(self, pr):
         self.merged = pr.merged
@@ -189,6 +234,16 @@ class PullRequest(object):
     def __repr__(self):
         return "{}#{}: {} {}".format("pr", self.number,
                                      self.title, self.labels)
+
+
+class Event(object):
+    def __init__(self, json):
+        self.event = json["event"]
+        self.commit_id = json["commit_id"]
+
+    def __repr__(self):
+        return "Event: {}, sha={}".format(self.event,
+                                          self.commit_id)
 
 
 class Change(object):
