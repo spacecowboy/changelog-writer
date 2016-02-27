@@ -1,3 +1,9 @@
+# Changelog specifies the structure of the changelog
+[changelog]
+# Each value is a top level header which can define optional sub headers
+Docs = ["Fixed typos", "Enchancements"]
+Code = ["Bug fixes", "Features"]
+
 # Commits which are to be included in the change log are searched for
 # in the specified revisions (branches/tags). Each revision will get
 # its own change log.
@@ -36,3 +42,16 @@ name = "Enhancements"
 #[[git.tags]]
 #key = "#changelog"
 #name = "Misc"
+
+[github]
+# Generate a token [here](https://github.com/settings/tokens). No
+# special permissions are required.
+#
+# You can also provide this token as a cmdline argument
+# (--github_token=XYZ) or as an environment variable (GITHUB_TOKEN).
+# If multiple, priority is: cmdline, config, envvar.
+#token =
+
+user = "spacecowboy"
+#repo = "changelog-writer"
+repo = "notepad"
