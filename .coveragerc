@@ -1,0 +1,13 @@
+# .coveragerc to control coverage.py
+[run]
+omit =
+    */tests*
+    */__main__.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    def parse_args
