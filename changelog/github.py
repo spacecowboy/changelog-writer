@@ -12,7 +12,7 @@ BASE = "https://api.github.com/repos/{}/{}/{}"
 
 def paginated(url, **params):
     if "per_page" not in params:
-        params["per_page"] = 30
+        params["per_page"] = 100
 
     def inner_rest(func):
         def inner(config):
@@ -86,20 +86,19 @@ def get_history(args, config):
     prs = list_pull_requests(config)
 
     # Merge PR with information in Issue (like labels)
-    print("events")
-    print("Downloading 0/{}".format(len(issues)),
-          end='\r')
+    print("Skipping events")
+    #print("Downloading 0/{}".format(len(issues)),
+    #      end='\r')
     for i, issue in enumerate(issues.values()):
         if issue.pr:
             issue.load_pr(prs[issue.number])
-        else:
-            print("Downloading {}/{}".format(i, len(issues)),
-                  end="\r")
+        #else:
+            #print("Downloading {}/{}".format(i, len(issues)),
+            #      end="\r")
+            #event = get_event(config, issue.number)
+            #issue.load_event(event)
 
-            event = get_event(config, issue.number)
-            issue.load_event(event)
-
-    print("Downloading {0}/{0}".format(len(issues)))
+    #print("Downloading {0}/{0}".format(len(issues)))
 
     return format_history(config, issues)
 
@@ -134,8 +133,23 @@ def format_history(config, issues):
     history = get_structure(config["changelog"])
 
     for issue in issues.values():
-        if not issue.fixed:
+        # Check if we should ignore this
+        if ("ignore" in config["github"] and
+                any([l in config["github"]["ignore"]
+                     for l in issue.labels])):
             continue
+
+        # Check if a mandatory label is present
+        if ("require" in config["github"] and not
+                any([l in config["github"]["require"]
+                     for l in issue.labels])):
+            continue
+
+
+        # Not necessarily true
+        #if not issue.fixed:
+        #    continue
+
         # Make it a change
         change = Change(issue.number,
                         get_change_text(issue.body, issue.title),
