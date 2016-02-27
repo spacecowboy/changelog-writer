@@ -55,3 +55,23 @@ name = "Enhancements"
 user = "spacecowboy"
 #repo = "changelog-writer"
 repo = "notepad"
+
+[[github.labels]]
+key = "bug"
+name = "Bug fixes"
+
+[[github.labels]]
+key = "enhancement"
+name = "Features"
+
+[[github.labels]]
+key = "feature"
+name = "Features"
+
+[[github.labels]]
+key = "docs"
+name = "Docs"
+
+[[github.labels]]
+key = "code"
+name = "Code"

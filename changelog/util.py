@@ -46,3 +46,13 @@ def get_change_text(text, default_value=None):
             val = line[10:].strip()
 
     return val
+
+
+class AttrDict(object):
+    def __init__(self, d):
+        """Mainly for testing purposes.
+
+        Parameters:
+        d - dict which provides mapping for attributes
+        """
+        self.__dict__ = d
