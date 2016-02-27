@@ -3,7 +3,7 @@
 from __future__ import print_function, division
 import os
 import requests
-from .util import default_get
+from .util import default_get, get_change_text
 
 
 BASE = "https://api.github.com/repos/{}/{}/{}"
@@ -118,3 +118,15 @@ class PullRequest(object):
     def __repr__(self):
         return "{}#{}: {} {}".format("pr", self.number,
                                      self.title, self.labels)
+
+
+class Change(object):
+    def __init__(self, id, change_text, labels):
+        self.id = id
+        self._change_text = change_text
+        self.labels = labels
+
+    @property
+    def change_text(self):
+        # Appends a link to the GitHub PR to the text
+        return self._change_text + " (#{})".format(self.id)
