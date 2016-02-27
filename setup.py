@@ -33,7 +33,8 @@ setup(
         "Programming Language :: Python",
         "Topic :: Documentation"],
     install_requires=[
-        "pytoml"],
+        "pytoml",
+        "requests"],
     package_data={
         "changelog": [
             "../README.md",
