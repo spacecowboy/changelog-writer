@@ -1,0 +1,62 @@
+# Changelog specifies the structure of the changelog
+[changelog]
+# Each value is a top level header which can define optional sub headers
+Cypher = ["Bug fixes", "Implemented enhancements"]
+Kernel = ["Bug fixes", "Implemented enhancements"]
+Browser = ["Bug fixes", "Implemented enhancements"]
+Core-Edge = ["Bug fixes", "Implemented enhancements"]
+Docs = ["Bug fixes", "Implemented enhancements"]
+Operability = ["Bug fixes", "Implemented enhancements"]
+Security = ["Bug fixes", "Implemented enhancements"]
+
+[github]
+# Generate a token [here](https://github.com/settings/tokens). No
+# special permissions are required.
+#
+# You can also provide this token as a cmdline argument
+# (--github_token=XYZ) or as an environment variable (GITHUB_TOKEN).
+# If multiple, priority is: cmdline, config, envvar.
+#token =
+
+user = "neo4j"
+repo = "neo4j"
+
+[[github.labels]]
+key = "bug"
+name = "Bug fixes"
+
+[[github.labels]]
+key = "enhancement"
+name = "Implemented enhancements"
+
+[[github.labels]]
+key = "feature"
+name = "Implemented enhancements"
+
+[[github.labels]]
+key = "cypher"
+name = "Cypher"
+
+[[github.labels]]
+key = "kernel"
+name = "Kernel"
+
+[[github.labels]]
+key = "browser"
+name = "Browser"
+
+[[github.labels]]
+key = "core-edge"
+name = "Core-Edge"
+
+[[github.labels]]
+key = "docs"
+name = "Docs"
+
+[[github.labels]]
+key = "operability"
+name = "Operability"
+
+[[github.labels]]
+key = "security"
+name = "Security"

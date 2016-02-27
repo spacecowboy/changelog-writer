@@ -87,18 +87,9 @@ def get_history(args, config):
 
     # Merge PR with information in Issue (like labels)
     print("Skipping events")
-    #print("Downloading 0/{}".format(len(issues)),
-    #      end='\r')
     for i, issue in enumerate(issues.values()):
         if issue.pr:
             issue.load_pr(prs[issue.number])
-        #else:
-            #print("Downloading {}/{}".format(i, len(issues)),
-            #      end="\r")
-            #event = get_event(config, issue.number)
-            #issue.load_event(event)
-
-    #print("Downloading {0}/{0}".format(len(issues)))
 
     return format_history(config, issues)
 
@@ -144,11 +135,6 @@ def format_history(config, issues):
                 any([l in config["github"]["require"]
                      for l in issue.labels])):
             continue
-
-
-        # Not necessarily true
-        #if not issue.fixed:
-        #    continue
 
         # Make it a change
         change = Change(issue.number,

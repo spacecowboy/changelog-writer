@@ -1,0 +1,41 @@
+# Changelog specifies the structure of the changelog
+[changelog]
+# Each value is a top level header which can define optional sub headers
+
+#[changelog."Fixed bugs"]
+#[changelog."Implemented enhancements"]
+
+"Fixed bugs" = ""
+"Implemented enhancements" = ""
+
+#Docs = ["Fixed typos", "Enchancements"]
+#Code = ["Bug fixes", "Features"]
+
+[github]
+# Generate a token [here](https://github.com/settings/tokens). No
+# special permissions are required.
+#
+# You can also provide this token as a cmdline argument
+# (--github_token=XYZ) or as an environment variable (GITHUB_TOKEN).
+# If multiple, priority is: cmdline, config, envvar.
+#token =
+
+user = "spacecowboy"
+#repo = "changelog-writer"
+repo = "notepad"
+
+ignore = ["ignore", "invalid", "question", "wontfix"]
+
+# require = ["changelog"]
+
+[[github.labels]]
+key = "bug"
+name = "Fixed bugs"
+
+[[github.labels]]
+key = "enhancement"
+name = "Implemented enhancements"
+
+[[github.labels]]
+key = "feature"
+name = "Implemented enhancements"
